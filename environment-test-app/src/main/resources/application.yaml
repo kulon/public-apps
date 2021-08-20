@@ -1,0 +1,83 @@
+# Camel
+camel:
+  springboot:
+    name: environment-test-app
+    tracing: false
+    
+##
+## Application Settings
+##
+
+# lets listen on all ports to ensure we can be invoked from the pod IP server.address=0.0.0.0
+server:
+  address: localhost
+  port: 8082
+
+management:
+  address: localhost
+  server:
+    # lets use a different management port in case you need to listen to HTTP requests on 8080
+    port: 8082
+
+    # enable management endpoints for healthchecks and hawtio
+    endpoints:
+      enabled: false
+      health:
+        enabled: true
+
+# Logging
+logging:
+  level:
+    io:
+      hawt: INFO
+      undertow: WARN
+    org:
+      springframework: WARN
+
+# Logger
+logger:
+  rootAppender: STDOUT  #STDOUT-JSON
+
+# Redelivery
+redelivery: 
+  maximumRedeliveries: 2
+  redeliveryDelay: 5000
+  useExponentialBackOff: false
+  backOffMultiplier: 1
+
+#Test Setup
+shouldTest:
+  amq: true
+  elastic: true
+  redis: false
+  kafka: false
+  sql: false
+
+##
+## Endpoint properties
+##
+ep:
+
+  # REST    
+  rest:
+    component: undertow
+    scheme: http
+    host: localhost
+    port: 8080
+      
+  # Elastic
+  elastic:  
+    cluster: elasticsearch
+    host: "localhost:9200"
+    user:
+    password:
+    enableSSL: false
+    ignoreCertificateVerification: true
+    index: "${camel.springboot.name}"
+      
+  # AMQ
+  amq:
+    brokerURL: "tcp://localhost:61616"
+    concurrentConsumers: 10
+    queue: environmenttestapp.delivery
+  

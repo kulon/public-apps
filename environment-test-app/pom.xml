@@ -1,0 +1,388 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+	<artifactId>environment-test-app</artifactId>
+	<groupId>kulon.public.apps</groupId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+	<name>environment-test-app</name>
+
+	<properties>
+		<java-sdk.version>1.8</java-sdk.version>
+		
+		<fuse.bom.version>7.8.0.fuse-sb2-780038-redhat-00001</fuse.bom.version>
+		<elastic-fuse-bound-version>6.4.2</elastic-fuse-bound-version>
+		<ibmmq.version>9.1.0.0</ibmmq.version>
+		<logstash-logback-encoder.version>6.4</logstash-logback-encoder.version>
+		<mssql-jdbc.version>9.2.1.jre8</mssql-jdbc.version>
+		
+		<cxf-codegen-plugin.version>3.4.3</cxf-codegen-plugin.version>
+		<jaxb2-basics-plugin.version>0.6.2-redhat-1</jaxb2-basics-plugin.version>
+		<jaxb2-basics-annotate-plugin.version>0.6.2-redhat-1</jaxb2-basics-annotate-plugin.version>
+		<jaxb-fluent-api-plugin.version>2.1.8</jaxb-fluent-api-plugin.version>
+		<maven-jaxb2-plugin.version>0.14.0</maven-jaxb2-plugin.version>
+		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+		
+		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>	    
+		<swagger-codegen-maven-plugin.version>2.4.19</swagger-codegen-maven-plugin.version>
+		
+ 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<generated-code-directory>src/main/generated</generated-code-directory>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Fuse -->
+			<dependency>
+			   <groupId>org.jboss.redhat-fuse</groupId>
+			   <artifactId>fuse-springboot-bom</artifactId>
+				<version>${fuse.bom.version}</version>
+			   <type>pom</type>
+			   <scope>import</scope>
+			 </dependency>
+			 
+			<!-- MQ -->
+			<dependency>
+				<groupId>com.ibm.mq</groupId>
+				<artifactId>com.ibm.mq.allclient</artifactId>
+				<version>${ibmmq.version}</version>
+			</dependency>
+			 
+			<!-- SQL Server -->
+			<dependency>
+				<groupId>com.microsoft.sqlserver</groupId>
+				<artifactId>mssql-jdbc</artifactId>
+				<version>${mssql-jdbc.version}</version>
+			</dependency>
+
+			<!-- Logstash Logback Encoder -->
+			<dependency>
+				<groupId>net.logstash.logback</groupId>
+				<artifactId>logstash-logback-encoder</artifactId>
+				<version>${logstash-logback-encoder.version}</version>
+			</dependency>
+
+			<!-- Elasticsearch -->
+			<dependency>
+			  <groupId>org.elasticsearch</groupId>
+			  <artifactId>elasticsearch</artifactId>
+			  <version>${elastic-fuse-bound-version}</version>
+			</dependency>
+			
+			<dependency>
+			  <groupId>org.elasticsearch.client</groupId>
+			  <artifactId>elasticsearch-rest-client</artifactId>
+			  <version>${elastic-fuse-bound-version}</version>
+			</dependency>
+			
+			<dependency>
+			  <groupId>org.elasticsearch.client</groupId>
+			  <artifactId>elasticsearch-rest-high-level-client</artifactId>
+			  <version>${elastic-fuse-bound-version}</version>
+			</dependency>
+			
+			<dependency>
+			  <groupId>org.elasticsearch.client</groupId>
+			  <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+			  <version>${elastic-fuse-bound-version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+        <!-- Spring Boot -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Camel -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
+        </dependency>
+
+		<dependency>
+		  <groupId>org.apache.camel</groupId>
+		  <artifactId>camel-undertow-starter</artifactId>
+		</dependency>
+
+		<!-- REST / Swagger -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-swagger-java-starter</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-rest-swagger-starter</artifactId>
+		</dependency>
+		
+		<!-- XML -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.apache.camel</groupId> -->
+<!-- 			<artifactId>camel-jaxb-starter</artifactId> -->
+<!-- 		</dependency> -->
+		
+		<!-- JSON -->	
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jackson-starter</artifactId>
+		</dependency>
+
+		<dependency>
+	        <groupId>javax.json</groupId>
+	        <artifactId>javax.json-api</artifactId>
+      	</dependency>
+
+		<!-- Elastic -->
+		<dependency>
+		  <groupId>org.apache.camel</groupId>
+		  <artifactId>camel-elasticsearch-rest-starter</artifactId>
+		</dependency>
+		
+		<!-- JMS -->        
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jms-starter</artifactId>
+		</dependency>
+		
+		<!-- AMQ -->        
+        <dependency>
+		    <groupId>org.apache.activemq</groupId>
+		    <artifactId>artemis-jms-client</artifactId>
+		</dependency>
+		
+		<!-- Logging --> 		
+		<dependency>
+		    <groupId>net.logstash.logback</groupId>
+		    <artifactId>logstash-logback-encoder</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>ch.qos.logback</groupId>
+		    <artifactId>logback-classic</artifactId>
+		</dependency>
+		
+		<!-- Apache language utilities -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+
+        <!-- Test -->
+	    <dependency>
+	      <groupId>org.springframework.boot</groupId>
+	      <artifactId>spring-boot-starter-test</artifactId>
+	      <scope>test</scope>
+	    </dependency>
+	    
+	    <dependency>
+	      <groupId>org.apache.camel</groupId>
+	      <artifactId>camel-test-spring</artifactId>
+	      <scope>test</scope>
+	    </dependency>
+	</dependencies>
+	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+				  <artifactId>maven-compiler-plugin</artifactId>
+				  <version>${maven-compiler-plugin.version}</version>
+				  <configuration>
+					<source>${java-sdk.version}</source>
+					<target>${java-sdk.version}</target>
+				  </configuration>
+				</plugin>
+				
+				<!-- Include generated code directory for cleaning -->
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven-clean-plugin.version}</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>${generated-code-directory}</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+		
+				<plugin>
+				  <groupId>org.jboss.redhat-fuse</groupId>
+				  <artifactId>spring-boot-maven-plugin</artifactId>
+				  <version>${fuse.bom.version}</version>
+				  <executions>
+					<execution>
+					  <goals>
+						<goal>repackage</goal>
+					  </goals>
+					</execution>
+				  </executions>
+				</plugin>
+
+				<!-- Unit Testing -->
+				<plugin>
+				   <groupId>org.apache.maven.plugins</groupId>
+				   <artifactId>maven-surefire-plugin</artifactId>
+				   <version>${maven-surefire-plugin.version}</version>
+				   <inherited>true</inherited>
+				   <configuration>
+					   <rerunFailingTestsCount>15</rerunFailingTestsCount>
+					   <argLine>-DenableImageStreamDetection=true</argLine>
+					   <excludes>
+						   <exclude>**/*KT.java</exclude>
+					   </excludes>
+				   </configuration>
+			   </plugin>
+			   
+				<!-- Generate classes from Swagger -->
+				<plugin>
+					<groupId>io.swagger</groupId>
+					<artifactId>swagger-codegen-maven-plugin</artifactId>
+					<version>${swagger-codegen-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>generate-sources-swagger</id>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+							<configuration>
+								<language>undertow</language>
+								<generateSupportingFiles>false</generateSupportingFiles>
+								<withXml>true</withXml> 
+								<output>${project.basedir}/${generated-code-directory}/api</output>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- Generate classes from WSDL -->
+				<plugin>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-codegen-plugin</artifactId>
+					<version>${cxf-codegen-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>generate-sources-wsdl</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>wsdl2java</goal>
+							</goals>
+							<configuration>
+								<defaultOptions>
+									<extraargs>
+										<extraarg>-xjc-Xannotate</extraarg>
+										<extraarg>-xjc-Xfluent-api</extraarg>
+										<extraarg>-suppress-generated-date</extraarg>
+									</extraargs>
+								</defaultOptions>
+								<sourceRoot>${generated-code-directory}/wsdl</sourceRoot>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>net.java.dev.jaxb2-commons</groupId>
+							<artifactId>jaxb-fluent-api</artifactId>
+							<version>${jaxb-fluent-api-plugin.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.jvnet.jaxb2_commons</groupId>
+							<artifactId>jaxb2-basics-annotate</artifactId>
+							<version>${jaxb2-basics-annotate-plugin.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			
+				<!-- Generate classes from XSD -->
+				<plugin>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<version>${maven-jaxb2-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>generate-sources-xsd</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<extension>true</extension>
+						<args>
+							<arg>-Xannotate</arg>
+							<arg>-nv</arg>
+							<arg>-Xsetters</arg>
+							<arg>-Xfluent-api</arg>
+						</args>
+						<plugins>
+							<plugin>
+								<groupId>org.jvnet.jaxb2_commons</groupId>
+								<artifactId>jaxb2-basics</artifactId>
+								<version>${jaxb2-basics-plugin.version}</version>
+							</plugin>
+							<plugin>
+								<groupId>org.jvnet.jaxb2_commons</groupId>
+								<artifactId>jaxb2-basics-annotate</artifactId>
+								<version>${jaxb2-basics-annotate-plugin.version}</version>
+							</plugin>
+								<plugin>
+									<groupId>net.java.dev.jaxb2-commons</groupId>
+									<artifactId>jaxb-fluent-api</artifactId>
+									<version>${jaxb-fluent-api-plugin.version}</version>
+								</plugin>
+						</plugins>
+						<generateDirectory>${generated-code-directory}/xsd</generateDirectory>
+						<noFileHeader>true</noFileHeader>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<defaultGoal>spring-boot:run</defaultGoal>
+
+		<plugins>
+		    <plugin>
+		      <artifactId>maven-compiler-plugin</artifactId>
+		    </plugin>
+		    
+		    <plugin>
+		      <groupId>org.jboss.redhat-fuse</groupId>
+		      <artifactId>spring-boot-maven-plugin</artifactId>
+		    </plugin>
+	
+			<plugin>
+	           <groupId>org.apache.maven.plugins</groupId>
+	           <artifactId>maven-surefire-plugin</artifactId>
+	       </plugin>
+		</plugins>
+	</build>
+</project>
