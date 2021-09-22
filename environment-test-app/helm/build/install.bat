@@ -1,0 +1,1 @@
+helm install environment-test-app-build . -n sandbox-vlad --atomic

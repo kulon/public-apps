@@ -175,6 +175,22 @@
 		    <artifactId>artemis-jms-client</artifactId>
 		</dependency>
 		
+		<!-- SQL -->
+		<dependency>
+		  <groupId>org.apache.camel</groupId>
+		  <artifactId>camel-sql-starter</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		
+		<dependency>
+		  <groupId>mysql</groupId>
+		  <artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		
 		<!-- Logging --> 		
 		<dependency>
 		    <groupId>net.logstash.logback</groupId>

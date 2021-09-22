@@ -1,0 +1,33 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: environment-test-app
+data:
+  application.yaml: |-
+
+    server:
+      address: 0.0.0.0
+
+    management:
+      address: 0.0.0.0
+
+    spring:
+      datasource:
+        url: jdbc:mysql://mysql.ircc-operators/sampledb
+        username: irccuser
+        password: password
+    
+    ep:
+      rest:
+        host: 0.0.0.0
+
+      elastic:
+        cluster: elasticsearch-ircc
+        host: elasticsearch-ircc-es-http.openshift-operators:9200
+        user: logger
+        password: logger.elastic
+        enableSSL: true
+        ignoreCertificateVerification: true
+
+      amq:  
+        brokerURL: "tcp://amq-broker-ircc-hdls-svc.amq-broker:61616"

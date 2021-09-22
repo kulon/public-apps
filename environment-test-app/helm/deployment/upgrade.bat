@@ -1,0 +1,1 @@
+helm upgrade environment-test-app . -n sandbox-vlad --atomic

@@ -1,0 +1,46 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: environment-test-app
+spec:
+  selector:
+    app: environment-test-app
+  replicas: 1
+  strategy:
+    type: Rolling
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - environment-test-app
+        from:
+          kind: ImageStreamTag
+          name: 'environment-test-app:latest'
+  template:
+    metadata:
+      labels:
+        app: environment-test-app
+    spec:
+      volumes:
+        - name: application-config
+          configMap:
+            name: environment-test-app
+            items:
+              - key: application.yaml
+                path: application.yaml
+      containers:
+        - name: environment-test-app
+          env:
+            - name: AB_JOLOKIA_OPTS
+              value: >-
+                caCert=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc
+          image: 'image-registry.openshift-image-registry.svc:5000/ircc-cicd/environment-test-app:latest'
+          ports:
+            - name: jolokia
+              containerPort: 8778
+              protocol: TCP
+          volumeMounts:
+            - name: application-config
+              mountPath: /deployments/config

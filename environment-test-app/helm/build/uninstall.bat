@@ -1,0 +1,1 @@
+helm uninstall environment-test-app-build -n sandbox-vlad

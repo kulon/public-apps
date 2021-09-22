@@ -1,0 +1,33 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: environment-test-app
+  labels:
+    app: environment-test-app
+spec:
+  serviceAccount: builder
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/kulon/public-apps.git'
+      ref: master
+    contextDir: /environment-test-app
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        namespace: openshift
+        name: 'java:8'
+      env:
+        - name: MAVEN_ARGS
+          value: >-
+            package -e -B -DskipTests -Dfabric8.skip=true
+        - name: MAVEN_MIRROR_URL
+          value: >-
+            http://nexus-repo-ircc.apps.ocp-ircc-lab.prod.brs.cloud-nuage.gc.ca/repository/maven-public
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'environment-test-app:latest'
+  triggers: []

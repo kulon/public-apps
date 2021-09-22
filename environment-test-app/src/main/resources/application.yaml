@@ -53,6 +53,14 @@ shouldTest:
   kafka: false
   sql: false
 
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/sampledb
+    username: irccuser
+    password: password
+    driver-class-name: com.mysql.jdbc.Driver
+
 ##
 ## Endpoint properties
 ##
@@ -80,4 +88,4 @@ ep:
     brokerURL: "tcp://localhost:61616"
     concurrentConsumers: 10
     queue: environmenttestapp.delivery
-  
+       

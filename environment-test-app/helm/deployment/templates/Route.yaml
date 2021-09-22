@@ -1,0 +1,11 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: environment-test-app
+spec:
+  host: environment-test-app.apps.ocp-ircc-lab.prod.brs.cloud-nuage.gc.ca
+  to:
+    kind: Service
+    name: environment-test-app
+  port:
+    targetPort: rest-port
