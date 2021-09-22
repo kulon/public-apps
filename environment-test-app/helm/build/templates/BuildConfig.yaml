@@ -23,9 +23,6 @@ spec:
         - name: MAVEN_ARGS
           value: >-
             package -e -B -DskipTests -Dfabric8.skip=true
-        - name: MAVEN_MIRROR_URL
-          value: >-
-            http://nexus-repo-ircc.apps.ocp-ircc-lab.prod.brs.cloud-nuage.gc.ca/repository/maven-public
   output:
     to:
       kind: ImageStreamTag
