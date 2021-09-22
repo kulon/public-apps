@@ -88,4 +88,3 @@ ep:
     brokerURL: "tcp://localhost:61616"
     concurrentConsumers: 10
     queue: environmenttestapp.delivery
-       
