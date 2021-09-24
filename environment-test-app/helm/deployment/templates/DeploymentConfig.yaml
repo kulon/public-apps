@@ -30,6 +30,9 @@ spec:
             items:
               - key: application.yaml
                 path: application.yaml
+        - name: messages-volume
+          persistentVolumeClaim:
+            claimName: environment-test-pvc
       containers:
         - name: environment-test-app
           env:
@@ -44,3 +47,6 @@ spec:
           volumeMounts:
             - name: application-config
               mountPath: /deployments/config
+            - name:  messages-volume
+              mountPath: /deployments/mount
+              

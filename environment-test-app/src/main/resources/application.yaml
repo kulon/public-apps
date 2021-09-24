@@ -88,3 +88,8 @@ ep:
     brokerURL: "tcp://localhost:61616"
     concurrentConsumers: 10
     queue: environmenttestapp.delivery
+    
+  # File
+  file:
+    folder: messages/out
+

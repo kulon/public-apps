@@ -31,6 +31,9 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 	@Value("${spring.datasource.url}") 
 	private String mysqlUrl;
 	
+	@Value("${ep.file.folder}") 
+	private String fileFolder;
+	
 	@Override
 	public void configure() throws Exception {
 
@@ -48,7 +51,7 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 		    .outType(TestReport.class)
 		.to("direct:startTest");
 	
-		from ("direct:startTest")
+		from("direct:startTest")
 		.choice()
 			.when(header("testType").isEqualTo("amq"))
 				.process ((Exchange e) -> { e.getIn().setBody("Test message sent from " + HOST_NAME + " to AMQ Broker "  + amqConfiguration.getBrokerURL() +
@@ -65,15 +68,20 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 						" at " + Calendar.getInstance().getTime());})
 				.to(ExchangePattern.InOnly, "seda:mysqlTest")
 			.endChoice()
+			.when(header("testType").isEqualTo("file"))
+				.process ((Exchange e) -> { e.getIn().setBody("Test message sent from " + HOST_NAME + " to the file folder " + fileFolder + 
+						" at " + Calendar.getInstance().getTime());})
+				.to(ExchangePattern.InOnly, "seda:fileTest")
+			.endChoice()
 			.otherwise()
 				.process ((Exchange e) -> { e.getIn().setBody("Unknown type of test: "  + e.getIn().getHeader("testType"));})
 			.endChoice()
 		.end();
 
-		from ("seda:amqTest")
+		from("seda:amqTest")
 		.to(AmqConfiguration.COMPONENT_NAME + ":" + amqConfiguration.getDeliveryQueue());
 	
-		from ("seda:elasticTest")
+		from("seda:elasticTest")
 			.setHeader(ElasticsearchConstants.PARAM_INDEX_TYPE, constant(Constants.ELASTIC_INDEX_TYPE))
 			.process((Exchange e) -> {
 				Map<String, Object> elasticRequest = new HashMap<>();
@@ -82,7 +90,10 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 				e.getIn().setBody(elasticRequest);})
 		.to(ElasticConfiguration.COMPONENT_NAME + "://" + ELASTIC_URL);
 
-		from ("seda:mysqlTest")
+		from("seda:mysqlTest")
 		.to("sql:insert into Test (Message) values (:#${body})");
+
+		from("seda:fileTest")
+		.to("file:" + fileFolder + "?fileName={{camel.springboot.name}}-${id}.txt");
 	}
 }
