@@ -8,5 +8,5 @@ spec:
   storageClassName: netapp-nas
   resources:
     requests:
-      storage: 1Gi
+      storage: 200Mi
   volumeMode: Filesystem
