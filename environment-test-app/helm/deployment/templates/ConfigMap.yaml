@@ -33,5 +33,5 @@ data:
         brokerURL: "tcp://amq-broker-ircc-hdls-svc.amq-broker:61616"
 
       file:
-        folder: /deployments/mount/messages/out
+        folder: /mnt/environment-test/messages/out
         

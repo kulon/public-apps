@@ -18,6 +18,7 @@ import kulon.publicapps.environmenttest.components.Constants;
 import kulon.publicapps.environmenttest.components.TestReport;
 import kulon.publicapps.environmenttest.configuration.AmqConfiguration;
 import kulon.publicapps.environmenttest.configuration.ElasticConfiguration;
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 
 @Component
 public class EnvironmentTestRoutes extends RouteBuilder {
@@ -73,13 +74,16 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 						" at " + Calendar.getInstance().getTime());})
 				.to(ExchangePattern.InOnly, "seda:fileTest")
 			.endChoice()
+			.when(header("testType").isEqualTo("read-file"))
+				.to("direct:readFileTest")
+			.endChoice()
 			.otherwise()
 				.process ((Exchange e) -> { e.getIn().setBody("Unknown type of test: "  + e.getIn().getHeader("testType"));})
 			.endChoice()
 		.end();
 
 		from("seda:amqTest")
-		.to(AmqConfiguration.COMPONENT_NAME + ":" + amqConfiguration.getDeliveryQueue());
+			.to(AmqConfiguration.COMPONENT_NAME + ":" + amqConfiguration.getDeliveryQueue());
 	
 		from("seda:elasticTest")
 			.setHeader(ElasticsearchConstants.PARAM_INDEX_TYPE, constant(Constants.ELASTIC_INDEX_TYPE))
@@ -88,12 +92,24 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 				elasticRequest.put("message", e.getIn().getBody());
 				elasticRequest.put("@timestamp", Calendar.getInstance().getTime());
 				e.getIn().setBody(elasticRequest);})
-		.to(ElasticConfiguration.COMPONENT_NAME + "://" + ELASTIC_URL);
+			.to(ElasticConfiguration.COMPONENT_NAME + "://" + ELASTIC_URL);
 
 		from("seda:mysqlTest")
-		.to("sql:insert into Test (Message) values (:#${body})");
+			.to("sql:insert into Test (Message) values (:#${body})");
 
 		from("seda:fileTest")
-		.to("file:" + fileFolder + "?fileName={{camel.springboot.name}}-${id}.txt");
+			.to("file:" + fileFolder + "?fileName={{camel.springboot.name}}-${id}.txt");
+
+		from("direct:readFileTest")
+			.pollEnrich("file:" + fileFolder, 3000)
+			.process ((Exchange e) -> {
+				String fileName = (String) e.getIn().getHeader("CamelFileName");
+				if (StringUtils.isNotBlank(fileName)) {
+					String message = e.getIn().getBody(String.class);
+					message = fileName + ": " + message; 
+					e.getIn().setBody(message);
+				}
+			})
+		    .setHeader("Content-Type", constant("text/html"));
 	}
 }

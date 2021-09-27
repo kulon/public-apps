@@ -48,5 +48,5 @@ spec:
             - name: application-config
               mountPath: /deployments/config
             - name:  messages-volume
-              mountPath: /deployments/mount
+              mountPath: /mnt/environment-test
               
