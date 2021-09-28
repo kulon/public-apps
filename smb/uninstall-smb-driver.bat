@@ -1,0 +1,1 @@
+helm uninstall csi-driver-smb -n openshift

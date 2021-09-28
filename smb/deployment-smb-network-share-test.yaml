@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smb-network-share-test
+spec:
+  selector:
+    matchLabels:
+      app: smb-network-share-test
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: smb-network-share-test
+    spec:
+      containers:
+        - name: smb-network-share-test
+          image: registry.redhat.io/ubi8/ubi:latest
+          command:
+            - "/bin/sh"
+            - "-c"
+            - while true; do echo $(date) >> /mnt/smb/outfile; sleep 1; done
+          volumeMounts:
+            - name: smb
+              mountPath: "/mnt/smb"
+              readOnly: false
+      volumes:
+        - name: smb
+          persistentVolumeClaim:
+            claimName: doj-network-share-pvc
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
