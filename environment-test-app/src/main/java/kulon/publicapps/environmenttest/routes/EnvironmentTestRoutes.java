@@ -18,6 +18,7 @@ import kulon.publicapps.environmenttest.components.Constants;
 import kulon.publicapps.environmenttest.components.TestReport;
 import kulon.publicapps.environmenttest.configuration.AmqConfiguration;
 import kulon.publicapps.environmenttest.configuration.ElasticConfiguration;
+import kulon.publicapps.environmenttest.configuration.SmbConfiguration;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 
 @Component
@@ -28,6 +29,9 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 	
 	@Autowired
 	private ElasticConfiguration elasticConfiguration;
+	
+	@Autowired
+	private SmbConfiguration smbConfiguration;
 	
 	@Value("${spring.datasource.url}") 
 	private String mysqlUrl;
@@ -77,6 +81,14 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 			.when(header("testType").isEqualTo("read-file"))
 				.to("direct:readFileTest")
 			.endChoice()
+			.when(header("testType").isEqualTo("smb"))
+				.process ((Exchange e) -> { e.getIn().setBody("Test message sent from " + HOST_NAME + " to the SMB share " + smbConfiguration.getUrl() + 
+						" at " + Calendar.getInstance().getTime());})
+				.to(ExchangePattern.InOnly, "seda:smbTest")
+			.endChoice()
+			.when(header("testType").isEqualTo("read-smb"))
+				.to("direct:readSmbTest")
+			.endChoice()
 			.otherwise()
 				.process ((Exchange e) -> { e.getIn().setBody("Unknown type of test: "  + e.getIn().getHeader("testType"));})
 			.endChoice()
@@ -111,5 +123,24 @@ public class EnvironmentTestRoutes extends RouteBuilder {
 				}
 			})
 		    .setHeader("Content-Type", constant("text/html"));
+
+		from("seda:smbTest")
+			.setHeader("CamelFileName", simple("{{camel.springboot.name}}-${id}.txt"))
+			.to("smb://" + smbConfiguration.getUrl() + "?password=" + smbConfiguration.getPassword());
+
+		from("direct:readSmbTest")
+			.pollEnrich("smb://" + smbConfiguration.getUrl() + "?password=" + smbConfiguration.getPassword() + "&delete=true", 3000)
+			.process ((Exchange e) -> {
+				String fileName = (String) e.getIn().getHeader("CamelFileName");
+				if (StringUtils.isNotBlank(fileName)) {
+					String message = e.getIn().getBody(String.class);
+					message = fileName + ": " + message; 
+					e.getIn().setBody(message);
+				}
+			})
+		    .setHeader("Content-Type", constant("text/html"));
+		
+		from("smb://" + smbConfiguration.getUrl() + "?password=" + smbConfiguration.getPassword() + "&delay=10000&move=done")
+		.to("file:" + fileFolder);		
 	}
 }
