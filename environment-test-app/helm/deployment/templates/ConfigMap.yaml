@@ -35,3 +35,13 @@ data:
       file:
         folder: /mnt/environment-test/messages/out
         
+      smb:
+        domain: 
+        username: user
+        password: 
+        server: server
+        port: 445
+        share: share
+        dir: test/messages/out
+ 
+             

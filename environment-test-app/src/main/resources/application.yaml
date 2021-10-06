@@ -93,3 +93,13 @@ ep:
   file:
     folder: messages/out
 
+  # CIFS / SMB
+  smb:
+    domain: 
+    username: user
+    password: 
+    server: server
+    port: 445
+    share: share
+    dir: test/messages/out
+ 

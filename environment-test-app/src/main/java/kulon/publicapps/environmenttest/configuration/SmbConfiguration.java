@@ -3,6 +3,8 @@ package kulon.publicapps.environmenttest.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
+
 @Configuration
 public class SmbConfiguration {
 
@@ -34,7 +36,29 @@ public class SmbConfiguration {
 	}
 
 	public String getUrl() {
-		return domain + ";" + username + "@" + server + ":" + port + "/" + share + "/" + dir;
+		
+		StringBuilder url = new StringBuilder();
+		url.append(domain);
+		
+		if (url.length() > 0 && StringUtils.isNotEmpty(username)) {
+			url.append(";").append(username);
+		}
+		
+		if (StringUtils.isNotEmpty(server)) {
+			url.append("@").append(server);
+		}
+		
+		if (StringUtils.isNotEmpty(port)) {
+			url.append(":").append(port);
+		}
+		
+		url.append("/").append(share);
+
+		if (StringUtils.isNotEmpty(dir)) {
+			url.append("/").append(dir);
+		}
+		
+		return url.toString();
 	}
 
 	public String getPassword() {
